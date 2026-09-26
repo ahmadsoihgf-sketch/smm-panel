@@ -1,0 +1,11 @@
+# Netlify configuration for the SMM panel.
+# All routes (including static assets, served by Express) go through the
+# serverless Express handler.
+
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/api"
+  status = 200
