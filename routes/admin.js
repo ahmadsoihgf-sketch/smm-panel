@@ -586,7 +586,7 @@ router.post('/settings', async (req, res) => {
     }
     const exists = await db.get('SELECT key FROM settings WHERE key = ?', [k]);
     if (exists) await db.run('UPDATE settings SET value = ? WHERE key = ?', [v, k]);
-    else await db.insert('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
+    else await db.run('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
   }
   clearCache(); // telegram config may have changed
   if (!hadError) req.flash('success', 'Settings saved.');
@@ -599,7 +599,7 @@ router.post('/settings/test-telegram', async (req, res) => {
     const v = (req.body[k] || '').trim();
     const exists = await db.get('SELECT key FROM settings WHERE key = ?', [k]);
     if (exists) await db.run('UPDATE settings SET value = ? WHERE key = ?', [v, k]);
-    else await db.insert('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
+    else await db.run('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
   }
   clearCache();
   const ok = await sendMessage('✅ <b>Test message</b> from your SMM panel. Telegram notifications are working.');

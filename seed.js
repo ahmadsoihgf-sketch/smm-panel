@@ -25,7 +25,7 @@ async function main(opts = {}) {
   };
   for (const [k, v] of Object.entries(defaults)) {
     const exists = await db.get('SELECT key FROM settings WHERE key = ?', [k]);
-    if (!exists) await db.insert('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
+    if (!exists) await db.run('INSERT INTO settings (key, value) VALUES (?, ?)', [k, v]);
   }
 
   function makeReferralCode() {
