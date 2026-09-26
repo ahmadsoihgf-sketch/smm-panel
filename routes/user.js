@@ -1,6 +1,5 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
@@ -10,16 +9,12 @@ const { notifyAdmin } = require('../lib/telegram');
 
 const router = express.Router();
 
-const receiptStorage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '..', 'public', 'uploads', 'receipts')),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, Date.now() + '-' + crypto.randomBytes(8).toString('hex') + ext);
-  },
-});
+// Serverless-safe uploads: no persistent disk on hosts like Vercel, so keep
+// the file in memory and store it as a data URL in the database. Admin views
+// render data: URLs directly, so no view changes are needed.
 const upload = multer({
-  storage: receiptStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 4 * 1024 * 1024 }, // 4MB (under Vercel Hobby's 4.5MB body limit)
   fileFilter: (req, file, cb) => {
     if (/^image\/(png|jpe?g|gif|webp)$/.test(file.mimetype)) cb(null, true);
     else cb(new Error('Only image files (PNG, JPG, GIF, WEBP) are allowed.'));
@@ -189,7 +184,9 @@ router.post('/funds/add', upload.single('receipt'), async (req, res) => {
     }
     if (!txnId) { req.flash('error', 'Transaction ID is required.'); return res.redirect('/funds/add'); }
 
-    const receiptPath = req.file ? '/uploads/receipts/' + req.file.filename : null;
+    const receiptPath = req.file
+      ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+      : null;
     const now = new Date().toISOString();
     const frId = await db.insert(
       `INSERT INTO fund_requests (user_id, method_id, amount, txn_id, receipt_path, status, created_at)

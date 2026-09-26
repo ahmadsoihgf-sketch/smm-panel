@@ -111,8 +111,10 @@ app.use('/admin', requireAdmin, require('./routes/admin'));
 // 404
 app.use((req, res) => res.status(404).render('404', { title: 'Not found' }));
 
-// Start
-db.init().then(async () => {
+// Start (also used as the Vercel serverless entry via api/index.js).
+// On serverless, the module is required per cold start: wait for DB init,
+// but do NOT call app.listen() — Vercel invokes the exported app directly.
+const ready = db.init().then(async () => {
   // First boot on a fresh database (e.g. production deploy): seed automatically
   try {
     const c = await db.get('SELECT COUNT(*) AS c FROM users');
@@ -121,13 +123,17 @@ db.init().then(async () => {
       await require('./seed')({ keepOpen: true });
     }
   } catch (e) { console.log('Auto-seed skipped:', e.message); }
-  app.listen(PORT, () => {
-    console.log(`SMM Panel running on http://localhost:${PORT}`);
-    console.log('Backend:', db.isPostgres() ? 'PostgreSQL' : 'SQLite');
-  });
+  if (require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`SMM Panel running on http://localhost:${PORT}`);
+      console.log('Backend:', db.isPostgres() ? 'PostgreSQL' : 'SQLite');
+    });
+  }
 }).catch((err) => {
   console.error('Failed to start:', err.message);
-  process.exit(1);
+  if (require.main === module) process.exit(1);
+  throw err;
 });
+app._ready = ready;
 
 module.exports = app;
