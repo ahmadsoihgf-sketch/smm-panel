@@ -1,0 +1,41 @@
+<%- include('../partials/head', { title: 'Categories' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'categories' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Categories</h1>
+
+<div class="card p-6 mb-6 max-w-xl">
+  <h2 class="font-bold mb-4">Add category</h2>
+  <form method="POST" action="/admin/categories" class="flex gap-3">
+    <input class="input" name="name" placeholder="Category name" required>
+    <input class="input w-24" type="number" name="position" value="0" title="Position">
+    <button class="btn btn-primary" type="submit">Add</button>
+  </form>
+</div>
+
+<div class="card overflow-hidden max-w-3xl">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">Name</th><th class="th">Position</th><th class="th">Services</th><th class="th">Actions</th></tr></thead>
+    <tbody>
+      <% categories.forEach(function(c){ %>
+      <tr>
+        <td class="td font-mono"><%= c.id %></td>
+        <td class="td font-semibold"><%= c.name %></td>
+        <td class="td"><%= c.position %></td>
+        <td class="td"><%= c.service_count %></td>
+        <td class="td whitespace-nowrap">
+          <form class="inline-flex gap-2 items-center" method="POST" action="/admin/categories/<%= c.id %>">
+            <input class="input !w-40" name="name" value="<%= c.name %>" required>
+            <input class="input !w-20" type="number" name="position" value="<%= c.position %>">
+            <button class="btn btn-sm btn-slate" type="submit">Save</button>
+          </form>
+          <form class="inline" method="POST" action="/admin/categories/<%= c.id %>/delete" onsubmit="return confirm('Delete this category?')">
+            <button class="btn btn-sm btn-red" type="submit">Del</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/shell_end') %>

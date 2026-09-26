@@ -1,0 +1,7 @@
+node_modules/
+data/
+.env
+public/uploads/receipts/*
+!public/uploads/receipts/.gitkeep
+*.log
+.DS_Store

@@ -1,0 +1,36 @@
+<%- include('../partials/head', { title: 'Users' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'users' }) %>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold">Users</h1>
+  <form method="GET" action="/admin/users" class="flex gap-2">
+    <input class="input !w-64" name="q" value="<%= q %>" placeholder="Search username or email...">
+    <button class="btn btn-slate" type="submit">Search</button>
+  </form>
+</div>
+
+<div class="card overflow-hidden">
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">Username</th><th class="th">Email</th><th class="th">Balance</th><th class="th">Orders</th><th class="th">Role</th><th class="th">Status</th><th class="th">Joined</th></tr></thead>
+    <tbody>
+      <% users.forEach(function(u){ %>
+      <tr class="hover:bg-slate-50 cursor-pointer" onclick="location.href='/admin/users/<%= u.id %>'">
+        <td class="td font-mono"><%= u.id %></td>
+        <td class="td font-semibold text-indigo-700"><%= u.username %></td>
+        <td class="td text-slate-500"><%= u.email %></td>
+        <td class="td font-semibold"><%= money(u.balance) %></td>
+        <td class="td"><%= u.order_count %></td>
+        <td class="td text-xs"><%= u.role %></td>
+        <td class="td"><%- statusBadge(u.status) %></td>
+        <td class="td text-slate-500 whitespace-nowrap"><%= dt(u.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<%- include('../partials/pagination', { page, pages, total, qs }) %>
+
+<%- include('../partials/shell_end') %>

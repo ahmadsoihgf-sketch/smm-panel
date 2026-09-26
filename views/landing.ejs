@@ -1,0 +1,98 @@
+<%- include('partials/head', { title: 'Home' }) %>
+<body class="bg-slate-950 text-slate-200">
+<div class="max-w-6xl mx-auto px-4">
+
+  <header class="flex items-center justify-between py-6">
+    <div class="flex items-center gap-2">
+      <span class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-lg">B</span>
+      <span class="font-bold text-white text-xl tracking-tight"><%= settings.site_name %></span>
+    </div>
+    <div class="flex gap-3">
+      <a href="/login" class="btn btn-slate btn-sm md:btn">Log in</a>
+      <a href="/register" class="btn btn-primary">Get started</a>
+    </div>
+  </header>
+
+  <section class="text-center py-16 md:py-24">
+    <h1 class="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight">
+      Grow on every<br>social platform.
+    </h1>
+    <p class="mt-6 text-lg text-slate-400 max-w-2xl mx-auto">
+      The fastest SMM panel for Instagram, TikTok, YouTube and Facebook.
+      Real services, instant start, live order tracking and 24/7 support — all from one dashboard.
+    </p>
+    <div class="mt-8 flex gap-3 justify-center">
+      <a href="/register" class="btn btn-primary text-base px-8 py-3">Create free account</a>
+      <a href="/login" class="btn btn-slate text-base px-8 py-3">Log in</a>
+    </div>
+    <div class="mt-10 flex flex-wrap justify-center gap-8 text-center">
+      <div><div class="text-3xl font-black text-white"><%= Number(stats.orders).toLocaleString() %>+</div><div class="text-sm text-slate-500">Orders completed</div></div>
+      <div><div class="text-3xl font-black text-white"><%= Number(stats.users).toLocaleString() %>+</div><div class="text-sm text-slate-500">Happy customers</div></div>
+      <div><div class="text-3xl font-black text-white"><%= Number(stats.services).toLocaleString() %>+</div><div class="text-sm text-slate-500">Active services</div></div>
+    </div>
+  </section>
+
+  <section class="py-12">
+    <h2 class="text-2xl md:text-3xl font-bold text-white text-center mb-2">Services &amp; prices</h2>
+    <p class="text-slate-400 text-center mb-8">Live price list — sign up to order.</p>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto max-h-[480px] overflow-y-auto">
+      <table class="w-full text-sm">
+        <thead class="sticky top-0">
+          <tr>
+            <th class="th !bg-slate-800 !text-slate-300">ID</th>
+            <th class="th !bg-slate-800 !text-slate-300">Service</th>
+            <th class="th !bg-slate-800 !text-slate-300 text-right">Rate / 1000</th>
+            <th class="th !bg-slate-800 !text-slate-300 text-right">Min</th>
+            <th class="th !bg-slate-800 !text-slate-300 text-right">Max</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% services.forEach(function(s){ %>
+          <tr class="border-t border-slate-800 hover:bg-slate-800/50">
+            <td class="td !border-slate-800 font-mono text-slate-400"><%= s.id %></td>
+            <td class="td !border-slate-800 text-slate-200">
+              <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wide block"><%= s.category || 'General' %></span>
+              <%= s.name %>
+            </td>
+            <td class="td !border-slate-800 text-right text-white font-semibold whitespace-nowrap"><%= money(s.rate_per_1000) %> <%= settings.currency %></td>
+            <td class="td !border-slate-800 text-right text-slate-400 whitespace-nowrap"><%= Number(s.min).toLocaleString() %></td>
+            <td class="td !border-slate-800 text-right text-slate-400 whitespace-nowrap"><%= Number(s.max).toLocaleString() %></td>
+          </tr>
+          <% }) %>
+          <% if (!services.length) { %>
+          <tr><td colspan="5" class="td !border-slate-800 text-center text-slate-500">No services yet.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 grid md:grid-cols-4 gap-4">
+    <% [
+      ['⚡','Instant start','Most orders begin within minutes of payment.'],
+      ['💳','Easy top-up','JazzCash & EasyPaisa deposits with fast manual approval.'],
+      ['📊','Live tracking','Watch every order move from pending to completed.'],
+      ['🔌','Reseller API','Automate everything with our simple API v2.']
+    ].forEach(function(f){ %>
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+      <div class="text-3xl"><%= f[0] %></div>
+      <div class="text-white font-bold mt-3"><%= f[1] %></div>
+      <div class="text-sm text-slate-400 mt-1"><%= f[2] %></div>
+    </div>
+    <% }) %>
+  </section>
+
+  <section class="py-16 text-center">
+    <h2 class="text-3xl font-black text-white">Ready to boost your socials?</h2>
+    <p class="text-slate-400 mt-3">Sign up free, add funds, and place your first order in under 5 minutes.</p>
+    <a href="/register" class="btn btn-primary text-base px-10 py-3 mt-6">Create free account</a>
+  </section>
+
+  <footer class="border-t border-slate-800 py-8 text-center text-sm text-slate-500">
+    <%= settings.site_name %> &copy; 2026 · <a href="/login" class="underline">Log in</a> · <a href="/register" class="underline">Register</a>
+  </footer>
+</div>
+</body>
+</html>

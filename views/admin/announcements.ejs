@@ -1,0 +1,55 @@
+<%- include('../partials/head', { title: 'Announcements' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'announcements' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Announcements</h1>
+<p class="text-sm text-slate-500 mb-6 -mt-4">Active announcements appear as a dismissible banner on every user's dashboard.</p>
+
+<div class="card p-6 mb-6 max-w-2xl">
+  <h2 class="font-bold mb-4">New announcement</h2>
+  <form method="POST" action="/admin/announcements" class="space-y-4">
+    <div>
+      <label class="text-sm font-semibold">Title</label>
+      <input class="input mt-1" name="title" required maxlength="150" placeholder="e.g. Eid discount week!">
+    </div>
+    <div>
+      <label class="text-sm font-semibold">Message</label>
+      <textarea class="input mt-1" name="message" rows="3" required placeholder="Details shown under the title..."></textarea>
+    </div>
+    <div>
+      <label class="text-sm font-semibold">Status</label>
+      <select name="status" class="input mt-1">
+        <option value="active">Active (visible to users)</option>
+        <option value="archived">Archived (hidden)</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Publish</button>
+  </form>
+</div>
+
+<div class="space-y-3 max-w-3xl">
+  <% announcements.forEach(function(a){ %>
+  <div class="card p-5">
+    <form method="POST" action="/admin/announcements/<%= a.id %>" class="space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <input class="input font-bold" name="title" value="<%= a.title %>" required maxlength="150">
+        <%- statusBadge(a.status) %>
+      </div>
+      <textarea class="input" name="message" rows="2" required><%= a.message %></textarea>
+      <div class="flex items-center gap-2">
+        <select name="status" class="input !w-40">
+          <option value="active" <%= a.status === 'active' ? 'selected' : '' %>>Active</option>
+          <option value="archived" <%= a.status === 'archived' ? 'selected' : '' %>>Archived</option>
+        </select>
+        <button class="btn btn-slate btn-sm" type="submit">Save</button>
+        <span class="text-xs text-slate-400 ml-auto"><%= dt(a.created_at) %></span>
+      </div>
+    </form>
+    <form method="POST" action="/admin/announcements/<%= a.id %>/delete" onsubmit="return confirm('Delete this announcement?')" class="mt-2">
+      <button class="btn btn-red btn-sm" type="submit">Delete</button>
+    </form>
+  </div>
+  <% }) %>
+  <% if (!announcements.length) { %><div class="card p-6 text-sm text-slate-500">No announcements yet.</div><% } %>
+</div>
+
+<%- include('../partials/shell_end') %>

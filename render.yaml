@@ -1,0 +1,26 @@
+# Render Blueprint for the SMM Panel (free tier friendly)
+services:
+  - type: web
+    name: smm-panel
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: SESSION_SECRET
+        generateValue: true
+      # Admin password for the seeded admin account (auto-generated on deploy).
+      # Read it from the Render dashboard (Environment) after deploy and give it
+      # to the site owner, then change it via the in-app Password page.
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      # Optional: attach a free Postgres (e.g. from Neon https://neon.tech
+      # or Supabase https://supabase.com) so balances/orders survive restarts.
+      # Without it the app uses a local SQLite file (ephemeral on free hosting).
+      - key: DATABASE_URL
+        sync: false
+      # Set to "false" if your Postgres provider needs non-SSL connections.
+      - key: PGSSL
+        sync: false

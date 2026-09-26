@@ -1,0 +1,43 @@
+<%- include('../partials/head', { title: 'Ticket #' + ticket.id }) %>
+<%- include('../partials/shell_start', { panel: 'user', active: 'tickets' }) %>
+
+<a href="/tickets" class="text-sm text-indigo-600 font-semibold">← All tickets</a>
+<div class="flex items-center gap-3 mt-2 mb-6">
+  <h1 class="text-2xl font-bold">Ticket #<%= ticket.id %></h1>
+  <%- statusBadge(ticket.status) %>
+</div>
+<p class="text-slate-500 mb-6 -mt-4"><%= ticket.subject %></p>
+
+<div class="space-y-3 mb-6 max-w-3xl">
+  <% messages.forEach(function(m){ 
+       const mine = m.user_id === currentUser.id;
+  %>
+    <div class="flex <%= mine ? 'justify-end' : 'justify-start' %>">
+      <div class="max-w-[80%] rounded-2xl px-4 py-3 <%= mine ? 'bg-indigo-600 text-white' : 'card' %>">
+        <div class="text-xs font-bold mb-1 <%= mine ? 'text-indigo-200' : 'text-slate-400' %>"><%= m.username %></div>
+        <div class="text-sm whitespace-pre-wrap"><%= m.message %></div>
+        <div class="text-[11px] mt-1 <%= mine ? 'text-indigo-200' : 'text-slate-400' %>"><%= dt(m.created_at) %></div>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<% if (ticket.status !== 'closed') { %>
+<div class="card p-5 max-w-3xl">
+  <form method="POST" action="/tickets/<%= ticket.id %>" class="space-y-3">
+    <label class="text-sm font-semibold">Reply</label>
+    <textarea class="input" name="message" rows="3" required placeholder="Type your reply..."></textarea>
+    <button class="btn btn-primary" type="submit">Send reply</button>
+  </form>
+</div>
+<% } else { %>
+<p class="text-sm text-slate-500">This ticket is closed. Reply to reopen it.</p>
+<div class="card p-5 max-w-3xl mt-3">
+  <form method="POST" action="/tickets/<%= ticket.id %>" class="space-y-3">
+    <textarea class="input" name="message" rows="3" required placeholder="Type your reply to reopen..."></textarea>
+    <button class="btn btn-primary" type="submit">Reopen & reply</button>
+  </form>
+</div>
+<% } %>
+
+<%- include('../partials/shell_end') %>

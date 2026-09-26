@@ -1,0 +1,41 @@
+<%- include('../partials/head', { title: 'My orders' }) %>
+<%- include('../partials/shell_start', { panel: 'user', active: 'orders' }) %>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold">My orders</h1>
+  <div class="flex gap-2 flex-wrap">
+    <% ['', 'pending', 'processing', 'inprogress', 'completed', 'partial', 'canceled'].forEach(function(s){ %>
+      <a href="/orders<%= s ? '?status=' + s : '' %>" class="btn btn-sm <%= statusFilter === s ? 'btn-primary' : 'btn-slate' %>"><%= s || 'All' %></a>
+    <% }) %>
+  </div>
+</div>
+
+<div class="card overflow-hidden">
+  <% if (!orders.length) { %>
+    <p class="p-5 text-sm text-slate-500">No orders found.</p>
+  <% } else { %>
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">Service</th><th class="th">Link</th><th class="th">Qty</th><th class="th">Charge</th><th class="th">Remains</th><th class="th">Status</th><th class="th">Date</th></tr></thead>
+    <tbody>
+      <% orders.forEach(function(o){ %>
+      <tr>
+        <td class="td font-mono">#<%= o.id %></td>
+        <td class="td max-w-[240px] truncate" title="<%= o.service_name %>"><%= o.service_name %></td>
+        <td class="td max-w-[200px] truncate"><a class="text-indigo-600 hover:underline" href="<%= o.link %>" target="_blank" rel="noopener"><%= o.link %></a></td>
+        <td class="td"><%= Number(o.quantity).toLocaleString() %></td>
+        <td class="td"><%= money(o.charge) %></td>
+        <td class="td"><%= Number(o.remains).toLocaleString() %></td>
+        <td class="td"><%- statusBadge(o.status) %></td>
+        <td class="td text-slate-500 whitespace-nowrap"><%= dt(o.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/pagination', { page, pages, total, qs }) %>
+
+<%- include('../partials/shell_end') %>

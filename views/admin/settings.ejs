@@ -1,0 +1,68 @@
+<%- include('../partials/head', { title: 'Settings' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'settings' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+<form method="POST" action="/admin/settings" class="space-y-4 max-w-2xl">
+  <div class="card p-6 space-y-4">
+    <h2 class="font-bold">General</h2>
+    <div>
+      <label class="text-sm font-semibold">Site name</label>
+      <input class="input mt-1" name="site_name" value="<%= s.site_name || '' %>" required>
+    </div>
+    <div>
+      <label class="text-sm font-semibold">Currency symbol</label>
+      <input class="input mt-1" name="currency" value="<%= s.currency || '' %>" required maxlength="10">
+      <p class="text-xs text-slate-500 mt-1">Shown next to all prices and balances, e.g. PKR, $, Rs.</p>
+    </div>
+  </div>
+
+  <div class="card p-6 space-y-4">
+    <h2 class="font-bold">🤝 Referral program</h2>
+    <div>
+      <label class="text-sm font-semibold">Referral commission %</label>
+      <input class="input mt-1 w-40" type="number" step="0.1" min="0" max="50" name="referral_commission_percent" value="<%= s.referral_commission_percent || '5' %>">
+      <p class="text-xs text-slate-500 mt-1">Credited to the referrer automatically whenever a referred user's fund request is approved. 0 disables it.</p>
+    </div>
+  </div>
+
+  <div class="card p-6 space-y-4">
+    <h2 class="font-bold">⭐ Loyalty tiers</h2>
+    <div>
+      <label class="text-sm font-semibold">Tiers (JSON)</label>
+      <textarea class="input mt-1 font-mono !text-xs" name="loyalty_tiers" rows="4"><%= s.loyalty_tiers || '[]' %></textarea>
+      <p class="text-xs text-slate-500 mt-1">Array of <code class="bg-slate-100 px-1 rounded">{"min_spent": 5000, "discount_pct": 2}</code> — lifetime order spend unlocks a standing discount, auto-applied on the new-order page and API.</p>
+    </div>
+  </div>
+
+  <div class="card p-6 space-y-4">
+    <h2 class="font-bold">✈️ Telegram notifications</h2>
+    <p class="text-xs text-slate-500">Create a bot with <a class="text-indigo-600 underline" href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a>, then send it a message and get your chat ID from <a class="text-indigo-600 underline" href="https://t.me/userinfobot" target="_blank" rel="noopener">@userinfobot</a>. You'll be notified on every new order and fund request.</p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="text-sm font-semibold">Bot token</label>
+        <input class="input mt-1 font-mono !text-xs" name="telegram_bot_token" value="<%= s.telegram_bot_token || '' %>" placeholder="123456:ABC-DEF...">
+      </div>
+      <div>
+        <label class="text-sm font-semibold">Chat ID</label>
+        <input class="input mt-1 font-mono !text-xs" name="telegram_chat_id" value="<%= s.telegram_chat_id || '' %>" placeholder="123456789">
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <button class="btn btn-primary" type="submit">Save settings</button>
+    <button class="btn btn-slate" type="submit" formaction="/admin/settings/test-telegram">✈️ Save &amp; send test message</button>
+  </div>
+</form>
+
+<div class="card p-6 max-w-2xl mt-4">
+  <h2 class="font-bold mb-2">Environment</h2>
+  <div class="text-sm space-y-1 text-slate-500">
+    <div>Database backend: <span class="font-semibold text-slate-700"><%= dbBackend %></span></div>
+    <div>Node: <span class="font-mono text-xs"><%= nodeVersion %></span></div>
+  </div>
+  <p class="text-xs text-slate-400 mt-3">Set the <code class="bg-slate-100 px-1 rounded">DATABASE_URL</code> environment variable to switch to PostgreSQL (recommended for production hosting with an ephemeral filesystem).</p>
+</div>
+
+<%- include('../partials/shell_end') %>

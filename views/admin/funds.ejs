@@ -1,0 +1,60 @@
+<%- include('../partials/head', { title: 'Fund requests' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'funds' }) %>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold">Fund requests <span class="text-sm font-semibold text-amber-600">(<%= pendingCount %> pending)</span></h1>
+  <div class="flex gap-2">
+    <% ['pending','approved','rejected'].forEach(function(s){ %>
+      <a href="/admin/funds?status=<%= s %>" class="btn btn-sm <%= statusFilter === s ? 'btn-primary' : 'btn-slate' %>"><%= s %></a>
+    <% }) %>
+  </div>
+</div>
+
+<% if (!requests.length) { %>
+  <div class="card p-6 text-sm text-slate-500">No <%= statusFilter %> requests.</div>
+<% } else { %>
+<div class="space-y-4">
+  <% requests.forEach(function(r){ %>
+  <div class="card p-5">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-bold">#<%= r.id %></span>
+          <a href="/admin/users/<%= r.user_id %>" class="text-indigo-700 font-semibold"><%= r.username %></a>
+          <%- statusBadge(r.status) %>
+        </div>
+        <div class="text-sm mt-2 space-y-1">
+          <div><span class="text-slate-500">Method:</span> <span class="font-semibold"><%= r.method_name || '-' %></span></div>
+          <div><span class="text-slate-500">Amount:</span> <span class="font-black text-lg"><%= money(r.amount) %> <%= settings.currency %></span></div>
+          <div><span class="text-slate-500">Txn ID:</span> <span class="font-mono text-xs"><%= r.txn_id || '-' %></span></div>
+          <div class="text-xs text-slate-400"><%= dt(r.created_at) %></div>
+          <% if (r.admin_note) { %><div class="text-xs"><span class="text-slate-500">Note:</span> <%= r.admin_note %></div><% } %>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <% if (r.receipt_path) { %>
+          <a href="<%= r.receipt_path %>" target="_blank" rel="noopener">
+            <img src="<%= r.receipt_path %>" alt="receipt" class="w-24 h-24 object-cover rounded-lg border border-slate-200 hover:shadow-md">
+          </a>
+        <% } %>
+      </div>
+    </div>
+    <% if (r.status === 'pending') { %>
+    <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
+      <form method="POST" action="/admin/funds/<%= r.id %>/approve" onsubmit="return confirm('Approve and credit <%= money(r.amount) %> to <%= r.username %>?')">
+        <button class="btn btn-green btn-sm" type="submit">✓ Approve & credit</button>
+      </form>
+      <form method="POST" action="/admin/funds/<%= r.id %>/reject" class="flex gap-2 flex-1 min-w-[240px]">
+        <input class="input !py-1.5 !text-xs" name="admin_note" placeholder="Rejection reason (shown to user)">
+        <button class="btn btn-red btn-sm" type="submit" onclick="return confirm('Reject this request?')">Reject</button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+  <% }) %>
+</div>
+<% } %>
+
+<%- include('../partials/pagination', { page, pages, total, qs }) %>
+
+<%- include('../partials/shell_end') %>

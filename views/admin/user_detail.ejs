@@ -1,0 +1,75 @@
+<%- include('../partials/head', { title: 'User: ' + user.username }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'users' }) %>
+
+<a href="/admin/users" class="text-sm text-indigo-600 font-semibold">← Users</a>
+<div class="flex flex-wrap items-center gap-3 mt-2 mb-6">
+  <h1 class="text-2xl font-bold"><%= user.username %></h1>
+  <%- statusBadge(user.status) %>
+  <span class="text-xs bg-slate-200 px-2 py-1 rounded-full font-semibold"><%= user.role %></span>
+</div>
+
+<div class="grid lg:grid-cols-3 gap-4 mb-6">
+  <div class="card p-5">
+    <div class="text-xs font-bold text-slate-400 uppercase">Balance</div>
+    <div class="text-2xl font-black mt-1"><%= money(user.balance) %> <%= settings.currency %></div>
+    <div class="text-xs text-slate-500 mt-1"><%= user.email %> · joined <%= dt(user.created_at) %></div>
+  </div>
+  <div class="card p-5">
+    <h3 class="font-bold text-sm mb-3">Adjust balance</h3>
+    <form method="POST" action="/admin/users/<%= user.id %>/balance" class="space-y-3">
+      <input class="input" type="number" step="0.01" name="amount" placeholder="Amount (use - for debit)" required>
+      <input class="input" name="reason" placeholder="Reason (e.g. bonus, correction)">
+      <button class="btn btn-primary btn-sm w-full" type="submit">Apply</button>
+    </form>
+  </div>
+  <div class="card p-5">
+    <h3 class="font-bold text-sm mb-3">Account status</h3>
+    <form method="POST" action="/admin/users/<%= user.id %>/status" class="flex gap-2">
+      <select name="status" class="input">
+        <option value="active" <%= user.status === 'active' ? 'selected' : '' %>>Active</option>
+        <option value="disabled" <%= user.status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+      </select>
+      <button class="btn btn-slate btn-sm" type="submit">Save</button>
+    </form>
+    <p class="text-xs text-slate-500 mt-2">Disabled users cannot log in or use the API.</p>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-4">
+  <div class="card overflow-hidden self-start">
+    <div class="px-5 py-4 border-b border-slate-100"><h2 class="font-bold">Recent orders</h2></div>
+    <% if (!orders.length) { %><p class="p-5 text-sm text-slate-500">No orders.</p><% } else { %>
+    <div class="overflow-x-auto"><table class="w-full">
+      <thead><tr><th class="th">ID</th><th class="th">Service</th><th class="th">Charge</th><th class="th">Status</th></tr></thead>
+      <tbody><% orders.forEach(function(o){ %>
+        <tr><td class="td font-mono">#<%= o.id %></td><td class="td max-w-[180px] truncate" title="<%= o.service_name %>"><%= o.service_name %></td><td class="td"><%= money(o.charge) %></td><td class="td"><%- statusBadge(o.status) %></td></tr>
+      <% }) %></tbody>
+    </table></div><% } %>
+  </div>
+  <div class="space-y-4">
+    <div class="card overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100"><h2 class="font-bold">Balance log</h2></div>
+      <% if (!logs.length) { %><p class="p-5 text-sm text-slate-500">Empty.</p><% } else { %>
+      <div class="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+        <% logs.forEach(function(l){ %>
+        <div class="px-5 py-2.5 flex justify-between text-sm">
+          <span class="text-slate-500 truncate max-w-[60%]"><%= l.reason %></span>
+          <span class="font-semibold <%= l.amount >= 0 ? 'text-green-600' : 'text-red-600' %>"><%= l.amount >= 0 ? '+' : '' %><%= money(l.amount) %></span>
+        </div>
+        <% }) %>
+      </div><% } %>
+    </div>
+    <div class="card overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100"><h2 class="font-bold">Fund requests</h2></div>
+      <% if (!funds.length) { %><p class="p-5 text-sm text-slate-500">None.</p><% } else { %>
+      <div class="overflow-x-auto"><table class="w-full">
+        <thead><tr><th class="th">ID</th><th class="th">Amount</th><th class="th">Status</th><th class="th">Date</th></tr></thead>
+        <tbody><% funds.forEach(function(f){ %>
+          <tr><td class="td font-mono">#<%= f.id %></td><td class="td"><%= money(f.amount) %></td><td class="td"><%- statusBadge(f.status) %></td><td class="td text-slate-500"><%= dt(f.created_at) %></td></tr>
+        <% }) %></tbody>
+      </table></div><% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/shell_end') %>

@@ -1,0 +1,55 @@
+<%- include('../partials/head', { title: 'Sync services' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'providers' }) %>
+
+<a href="/admin/providers" class="text-sm text-indigo-600 font-semibold">← Providers</a>
+<h1 class="text-2xl font-bold mt-2 mb-2">Sync services: <%= provider.name %></h1>
+<p class="text-sm text-slate-500 mb-6">Fetched <strong><%= services.length %></strong> services from the provider. Tick the ones to import, choose a category, and optionally add a markup % on the provider rate.</p>
+
+<form method="POST" action="/admin/providers/<%= provider.id %>/sync">
+  <div class="card p-5 mb-4 flex flex-wrap items-end gap-4">
+    <div>
+      <label class="text-sm font-semibold">Import into category</label>
+      <select name="category_id" class="input mt-1">
+        <option value="">— No category —</option>
+        <% categories.forEach(function(c){ %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+      </select>
+    </div>
+    <div>
+      <label class="text-sm font-semibold">Markup % on provider rate</label>
+      <input class="input mt-1 w-32" type="number" step="0.01" name="markup" value="30" title="Your sell price = provider rate + markup%">
+    </div>
+    <button class="btn btn-primary" type="submit">Import selected</button>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead><tr><th class="th"><input type="checkbox" id="checkAll"></th><th class="th">Provider ID</th><th class="th">Name</th><th class="th">Category</th><th class="th">Rate</th><th class="th">Min–Max</th><th class="th">Status</th></tr></thead>
+      <tbody>
+        <% services.forEach(function(s, i){ 
+             const already = existingIds.has(s.provider_service_id);
+             const val = JSON.stringify({ provider_service_id: s.provider_service_id, name: s.name, type: s.type, rate: s.rate, min: s.min, max: s.max });
+        %>
+        <tr class="<%= already ? 'opacity-50' : '' %>">
+          <td class="td"><% if (!already) { %><input type="checkbox" name="items" value='<%= val.replace(/'/g, "&#39;") %>' class="item-check"><% } %></td>
+          <td class="td font-mono text-xs"><%= s.provider_service_id %></td>
+          <td class="td max-w-[300px] truncate" title="<%= s.name %>"><%= s.name %></td>
+          <td class="td text-xs text-slate-500"><%= s.category || '-' %></td>
+          <td class="td whitespace-nowrap"><%= s.rate %></td>
+          <td class="td whitespace-nowrap text-xs"><%= Number(s.min).toLocaleString() %> – <%= Number(s.max).toLocaleString() %></td>
+          <td class="td"><%= already ? '<span class="text-xs text-slate-400">imported</span>' : '<span class="text-xs text-green-600 font-semibold">new</span>' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</form>
+
+<script>
+document.getElementById('checkAll').addEventListener('change', function(){
+  document.querySelectorAll('.item-check').forEach(c => c.checked = this.checked);
+});
+</script>
+
+<%- include('../partials/shell_end') %>

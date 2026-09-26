@@ -1,0 +1,46 @@
+<%- include('../partials/head', { title: 'Payment methods' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'payments' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Payment methods</h1>
+
+<div class="card p-6 mb-6">
+  <h2 class="font-bold mb-4">Add payment method</h2>
+  <form method="POST" action="/admin/payments" class="grid md:grid-cols-3 gap-4">
+    <div><label class="text-sm font-semibold">Name</label><input class="input mt-1" name="name" required placeholder="e.g. JazzCash"></div>
+    <div><label class="text-sm font-semibold">Type</label><input class="input mt-1" name="type" value="manual"></div>
+    <div><label class="text-sm font-semibold">Position</label><input class="input mt-1" type="number" name="position" value="0"></div>
+    <div><label class="text-sm font-semibold">Account title</label><input class="input mt-1" name="account_title"></div>
+    <div><label class="text-sm font-semibold">Account number</label><input class="input mt-1" name="account_number"></div>
+    <div><label class="text-sm font-semibold">Status</label>
+      <select name="status" class="input mt-1"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    <div class="md:col-span-3"><label class="text-sm font-semibold">Instructions (shown to user)</label><textarea class="input mt-1" name="instructions" rows="3" placeholder="Step-by-step payment instructions..."></textarea></div>
+    <div class="md:col-span-3"><button class="btn btn-primary" type="submit">Add method</button></div>
+  </form>
+</div>
+
+<div class="space-y-4">
+  <% methods.forEach(function(m){ %>
+  <div class="card p-5">
+    <form method="POST" action="/admin/payments/<%= m.id %>" class="grid md:grid-cols-3 gap-4">
+      <div><label class="text-xs font-semibold">Name</label><input class="input mt-1" name="name" value="<%= m.name %>" required></div>
+      <div><label class="text-xs font-semibold">Type</label><input class="input mt-1" name="type" value="<%= m.type %>"></div>
+      <div><label class="text-xs font-semibold">Position</label><input class="input mt-1" type="number" name="position" value="<%= m.position %>"></div>
+      <div><label class="text-xs font-semibold">Account title</label><input class="input mt-1" name="account_title" value="<%= m.account_title || '' %>"></div>
+      <div><label class="text-xs font-semibold">Account number</label><input class="input mt-1" name="account_number" value="<%= m.account_number || '' %>"></div>
+      <div><label class="text-xs font-semibold">Status</label>
+        <select name="status" class="input mt-1">
+          <option value="active" <%= m.status === 'active' ? 'selected' : '' %>>Active</option>
+          <option value="inactive" <%= m.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+        </select></div>
+      <div class="md:col-span-3"><label class="text-xs font-semibold">Instructions</label><textarea class="input mt-1" name="instructions" rows="3"><%= m.instructions || '' %></textarea></div>
+      <div class="md:col-span-3"><button class="btn btn-slate btn-sm" type="submit">Save</button></div>
+    </form>
+    <form method="POST" action="/admin/payments/<%= m.id %>/delete" onsubmit="return confirm('Delete this payment method?')" class="mt-2">
+      <button class="btn btn-red btn-sm" type="submit">Delete</button>
+    </form>
+  </div>
+  <% }) %>
+  <% if (!methods.length) { %><div class="card p-6 text-sm text-slate-500">No payment methods yet.</div><% } %>
+</div>
+
+<%- include('../partials/shell_end') %>

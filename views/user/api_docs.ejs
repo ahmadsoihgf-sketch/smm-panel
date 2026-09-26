@@ -1,0 +1,51 @@
+<%- include('../partials/head', { title: 'API' }) %>
+<%- include('../partials/shell_start', { panel: 'user', active: 'api' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Reseller API</h1>
+
+<div class="card p-6 mb-6 max-w-3xl">
+  <h2 class="font-bold mb-2">Your API key</h2>
+  <div class="flex flex-wrap items-center gap-3">
+    <code class="bg-slate-100 border border-slate-200 rounded-lg px-3 py-2 font-mono text-sm break-all"><%= currentUser.api_key %></code>
+    <form method="POST" action="/api/regenerate" onsubmit="return confirm('Regenerate your API key? Old integrations will stop working.')">
+      <button class="btn btn-slate btn-sm" type="submit">Regenerate</button>
+    </form>
+  </div>
+  <p class="text-xs text-slate-500 mt-2">Keep this key secret. Anyone with it can place orders on your balance.</p>
+</div>
+
+<div class="card p-6 max-w-3xl">
+  <h2 class="font-bold mb-3">Documentation</h2>
+  <div class="text-sm space-y-4">
+    <div>
+      <p class="font-semibold">Endpoint</p>
+      <code class="bg-slate-100 px-2 py-1 rounded text-xs">POST <%= baseUrl %>/api/v2</code>
+      <p class="text-slate-500 text-xs mt-1">Send parameters as JSON or form-encoded. All responses are JSON with a <code>status</code> field (<code>success</code> / <code>error</code>).</p>
+    </div>
+    <div>
+      <p class="font-semibold mb-1">Service list</p>
+      <pre class="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto">{ "key": "YOUR_KEY", "action": "services" }</pre>
+    </div>
+    <div>
+      <p class="font-semibold mb-1">Place order</p>
+      <pre class="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto">{ "key": "YOUR_KEY", "action": "add", "service": 1, "link": "https://...", "quantity": 1000 }</pre>
+      <p class="text-slate-500 text-xs mt-1">Returns <code>{ "status": "success", "order": 123 }</code>.</p>
+    </div>
+    <div>
+      <p class="font-semibold mb-1">Order status</p>
+      <pre class="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto">{ "key": "YOUR_KEY", "action": "status", "order": 123 }</pre>
+    </div>
+    <div>
+      <p class="font-semibold mb-1">Balance</p>
+      <pre class="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto">{ "key": "YOUR_KEY", "action": "balance" }</pre>
+    </div>
+    <div>
+      <p class="font-semibold mb-1">cURL example</p>
+      <pre class="bg-slate-900 text-slate-100 text-xs rounded-lg p-3 overflow-x-auto">curl -X POST <%= baseUrl %>/api/v2 \
+  -d "key=YOUR_KEY" \
+  -d "action=services"</pre>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/shell_end') %>

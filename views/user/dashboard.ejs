@@ -1,0 +1,129 @@
+<%- include('../partials/head', { title: 'Dashboard' }) %>
+<%- include('../partials/shell_start', { panel: 'user', active: 'dashboard' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+
+<% if (announcements && announcements.length) { %>
+  <% announcements.forEach(function(a){ %>
+  <div class="announcement-banner mb-3 px-4 py-3 rounded-xl bg-indigo-50 border border-indigo-200 flex items-start gap-3" data-ann-id="<%= a.id %>">
+    <span class="text-xl">📢</span>
+    <div class="flex-1 min-w-0">
+      <div class="font-bold text-indigo-900 text-sm"><%= a.title %></div>
+      <div class="text-sm text-indigo-800 whitespace-pre-wrap"><%= a.message %></div>
+    </div>
+    <button class="ann-dismiss text-indigo-400 hover:text-indigo-700 font-bold px-1" data-ann-id="<%= a.id %>" title="Dismiss">✕</button>
+  </div>
+  <% }) %>
+  <script>
+  (function(){
+    try {
+      var seen = JSON.parse(localStorage.getItem('dismissed_ann') || '[]');
+      document.querySelectorAll('.announcement-banner').forEach(function(el){
+        if (seen.indexOf(String(el.dataset.annId)) !== -1) el.remove();
+      });
+      document.querySelectorAll('.ann-dismiss').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = String(btn.dataset.annId);
+          var s = JSON.parse(localStorage.getItem('dismissed_ann') || '[]');
+          if (s.indexOf(id) === -1) s.push(id);
+          localStorage.setItem('dismissed_ann', JSON.stringify(s));
+          var banner = btn.closest('.announcement-banner');
+          if (banner) banner.remove();
+        });
+      });
+    } catch(e){}
+  })();
+  </script>
+<% } %>
+
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="card p-5">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Balance</div>
+    <div class="text-2xl font-black mt-1"><%= money(stats.balance) %> <span class="text-sm font-semibold text-slate-400"><%= settings.currency %></span></div>
+    <a href="/funds/add" class="btn btn-primary btn-sm mt-3">＋ Add funds</a>
+  </div>
+  <div class="card p-5">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Total orders</div>
+    <div class="text-2xl font-black mt-1"><%= stats.totalOrders %></div>
+    <a href="/order/new" class="text-sm text-indigo-600 font-semibold mt-3 inline-block">＋ New order</a>
+  </div>
+  <div class="card p-5">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Active orders</div>
+    <div class="text-2xl font-black mt-1"><%= stats.pendingOrders %></div>
+    <a href="/orders" class="text-sm text-indigo-600 font-semibold mt-3 inline-block">View orders →</a>
+  </div>
+  <div class="card p-5">
+    <div class="text-xs font-bold text-slate-400 uppercase tracking-wide">Open tickets</div>
+    <div class="text-2xl font-black mt-1"><%= stats.openTickets %></div>
+    <a href="/tickets" class="text-sm text-indigo-600 font-semibold mt-3 inline-block">Support →</a>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-4 mb-8">
+  <div class="card p-5">
+    <div class="flex items-center justify-between mb-1">
+      <h2 class="font-bold">🤝 Refer &amp; earn</h2>
+      <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full"><%= referral.commissionPct %>% commission</span>
+    </div>
+    <p class="text-sm text-slate-500 mb-3">Share your link. You earn <%= referral.commissionPct %>% of every deposit your referrals make.</p>
+    <div class="flex gap-2">
+      <input id="refLink" class="input font-mono !text-xs" readonly value="<%= referral.link %>" onclick="this.select()">
+      <button class="btn btn-slate btn-sm whitespace-nowrap" onclick="navigator.clipboard.writeText(document.getElementById('refLink').value);this.textContent='Copied!';">Copy</button>
+    </div>
+    <div class="flex gap-6 mt-3 text-sm">
+      <div><span class="font-black text-lg"><%= referral.signups %></span> <span class="text-slate-500">signups</span></div>
+      <div><span class="font-black text-lg"><%= money(referral.earnings) %></span> <span class="text-slate-500"><%= settings.currency %> earned</span></div>
+    </div>
+  </div>
+  <div class="card p-5">
+    <h2 class="font-bold mb-1">⭐ Loyalty discount</h2>
+    <% if (loyalty.discount_pct > 0) { %>
+      <p class="text-sm text-slate-500">Your current tier: <span class="font-black text-indigo-700 text-base">VIP <%= loyalty.discount_pct %>% off</span> on all orders.</p>
+    <% } else { %>
+      <p class="text-sm text-slate-500">No discount yet — keep ordering to unlock VIP tiers.</p>
+    <% } %>
+    <div class="text-xs text-slate-500 mt-2">Lifetime spend: <span class="font-bold text-slate-700"><%= money(loyalty.spend) %> <%= settings.currency %></span></div>
+    <% if (loyalty.next) { %>
+      <% const pct = Math.min(100, Math.round(loyalty.spend / loyalty.next.min_spent * 100)); %>
+      <div class="mt-2">
+        <div class="flex justify-between text-xs text-slate-500 mb-1">
+          <span>Next: <strong>VIP <%= loyalty.next.discount_pct %>%</strong> at <%= money(loyalty.next.min_spent) %></span>
+          <span><%= pct %>%</span>
+        </div>
+        <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-indigo-600 rounded-full" style="width:<%= pct %>%"></div></div>
+      </div>
+    <% } else if (loyalty.tiers.length) { %>
+      <p class="text-xs text-green-600 font-semibold mt-2">🏆 You've reached the highest tier!</p>
+    <% } %>
+  </div>
+</div>
+
+<div class="card overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+    <h2 class="font-bold">Recent orders</h2>
+    <a href="/orders" class="text-sm text-indigo-600 font-semibold">View all →</a>
+  </div>
+  <% if (!recent.length) { %>
+    <p class="p-5 text-sm text-slate-500">No orders yet. <a href="/order/new" class="text-indigo-600 font-semibold">Place your first order</a>.</p>
+  <% } else { %>
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">Service</th><th class="th">Qty</th><th class="th">Charge</th><th class="th">Status</th><th class="th">Date</th></tr></thead>
+    <tbody>
+      <% recent.forEach(function(o){ %>
+      <tr>
+        <td class="td font-mono">#<%= o.id %></td>
+        <td class="td max-w-xs truncate" title="<%= o.service_name %>"><%= o.service_name %></td>
+        <td class="td"><%= Number(o.quantity).toLocaleString() %></td>
+        <td class="td"><%= money(o.charge) %></td>
+        <td class="td"><%- statusBadge(o.status) %></td>
+        <td class="td text-slate-500"><%= dt(o.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/shell_end') %>

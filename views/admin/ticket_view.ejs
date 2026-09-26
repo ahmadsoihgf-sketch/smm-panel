@@ -1,0 +1,40 @@
+<%- include('../partials/head', { title: 'Ticket #' + ticket.id }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'tickets' }) %>
+
+<a href="/admin/tickets" class="text-sm text-indigo-600 font-semibold">← Tickets</a>
+<div class="flex items-center gap-3 mt-2 mb-2">
+  <h1 class="text-2xl font-bold">Ticket #<%= ticket.id %></h1>
+  <%- statusBadge(ticket.status) %>
+</div>
+<p class="text-slate-500 mb-6">From <a href="/admin/users/<%= ticket.user_id %>" class="text-indigo-700 font-semibold"><%= ticket.username %></a> · <%= ticket.subject %></p>
+
+<div class="space-y-3 mb-6 max-w-3xl">
+  <% messages.forEach(function(m){ 
+       const mine = m.user_id === currentUser.id;
+  %>
+    <div class="flex <%= mine ? 'justify-end' : 'justify-start' %>">
+      <div class="max-w-[80%] rounded-2xl px-4 py-3 <%= mine ? 'bg-indigo-600 text-white' : 'card' %>">
+        <div class="text-xs font-bold mb-1 <%= mine ? 'text-indigo-200' : 'text-slate-400' %>"><%= m.username %></div>
+        <div class="text-sm whitespace-pre-wrap"><%= m.message %></div>
+        <div class="text-[11px] mt-1 <%= mine ? 'text-indigo-200' : 'text-slate-400' %>"><%= dt(m.created_at) %></div>
+      </div>
+    </div>
+  <% }) %>
+</div>
+
+<div class="card p-5 max-w-3xl">
+  <form method="POST" action="/admin/tickets/<%= ticket.id %>" class="space-y-3">
+    <label class="text-sm font-semibold">Reply</label>
+    <textarea class="input" name="message" rows="3" placeholder="Type your reply..."></textarea>
+    <div class="flex gap-2">
+      <button class="btn btn-primary" type="submit" name="action" value="reply">Send reply</button>
+      <% if (ticket.status === 'open') { %>
+        <button class="btn btn-slate" type="submit" name="action" value="close">Reply & close</button>
+      <% } else { %>
+        <button class="btn btn-slate" type="submit" name="action" value="reopen">Reopen</button>
+      <% } %>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/shell_end') %>

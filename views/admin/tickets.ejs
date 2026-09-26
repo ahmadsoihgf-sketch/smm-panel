@@ -1,0 +1,36 @@
+<%- include('../partials/head', { title: 'Tickets' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'tickets' }) %>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold">Support tickets</h1>
+  <div class="flex gap-2">
+    <% [['', 'All'], ['open', 'Open'], ['closed', 'Closed']].forEach(function(x){ %>
+      <a href="/admin/tickets<%= x[0] ? '?status=' + x[0] : '' %>" class="btn btn-sm <%= statusFilter === x[0] ? 'btn-primary' : 'btn-slate' %>"><%= x[1] %></a>
+    <% }) %>
+  </div>
+</div>
+
+<div class="card overflow-hidden">
+  <% if (!tickets.length) { %>
+    <p class="p-5 text-sm text-slate-500">No tickets.</p>
+  <% } else { %>
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">User</th><th class="th">Subject</th><th class="th">Status</th><th class="th">Created</th></tr></thead>
+    <tbody>
+      <% tickets.forEach(function(t){ %>
+      <tr class="hover:bg-slate-50 cursor-pointer" onclick="location.href='/admin/tickets/<%= t.id %>'">
+        <td class="td font-mono">#<%= t.id %></td>
+        <td class="td"><%= t.username %></td>
+        <td class="td max-w-[320px] truncate"><%= t.subject %></td>
+        <td class="td"><%- statusBadge(t.status) %></td>
+        <td class="td text-slate-500 whitespace-nowrap"><%= dt(t.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</div>
+
+<%- include('../partials/pagination', { page, pages, total, qs }) %>
+
+<%- include('../partials/shell_end') %>

@@ -1,0 +1,40 @@
+<%- include('../partials/head', { title: 'Admin dashboard' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'dashboard' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Admin dashboard</h1>
+
+<div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+  <div class="card p-5"><div class="text-xs font-bold text-slate-400 uppercase">Users</div><div class="text-3xl font-black mt-1"><%= stats.users %></div></div>
+  <div class="card p-5"><div class="text-xs font-bold text-slate-400 uppercase">Total orders</div><div class="text-3xl font-black mt-1"><%= stats.orders %></div></div>
+  <div class="card p-5"><div class="text-xs font-bold text-slate-400 uppercase">Revenue</div><div class="text-3xl font-black mt-1"><%= money(stats.revenue) %> <span class="text-sm text-slate-400"><%= settings.currency %></span></div></div>
+  <a href="/admin/funds" class="card p-5 hover:shadow-md"><div class="text-xs font-bold text-slate-400 uppercase">Pending funds</div><div class="text-3xl font-black mt-1 <%= stats.pending_funds > 0 ? 'text-amber-600' : '' %>"><%= stats.pending_funds %></div></a>
+  <a href="/admin/tickets?status=open" class="card p-5 hover:shadow-md"><div class="text-xs font-bold text-slate-400 uppercase">Open tickets</div><div class="text-3xl font-black mt-1 <%= stats.open_tickets > 0 ? 'text-blue-600' : '' %>"><%= stats.open_tickets %></div></a>
+  <a href="/admin/orders?status=pending" class="card p-5 hover:shadow-md"><div class="text-xs font-bold text-slate-400 uppercase">Pending orders</div><div class="text-3xl font-black mt-1"><%= stats.pending_orders %></div></a>
+</div>
+
+<div class="card overflow-hidden">
+  <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+    <h2 class="font-bold">Latest orders</h2>
+    <a href="/admin/orders" class="text-sm text-indigo-600 font-semibold">View all →</a>
+  </div>
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">User</th><th class="th">Service</th><th class="th">Qty</th><th class="th">Charge</th><th class="th">Status</th><th class="th">Date</th></tr></thead>
+    <tbody>
+      <% recentOrders.forEach(function(o){ %>
+      <tr>
+        <td class="td font-mono">#<%= o.id %></td>
+        <td class="td"><%= o.username %></td>
+        <td class="td max-w-[220px] truncate" title="<%= o.service_name %>"><%= o.service_name %></td>
+        <td class="td"><%= Number(o.quantity).toLocaleString() %></td>
+        <td class="td"><%= money(o.charge) %></td>
+        <td class="td"><%- statusBadge(o.status) %></td>
+        <td class="td text-slate-500 whitespace-nowrap"><%= dt(o.created_at) %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<%- include('../partials/shell_end') %>

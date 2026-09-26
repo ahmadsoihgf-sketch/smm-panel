@@ -1,0 +1,59 @@
+<%- include('../partials/head', { title: 'Orders' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'orders' }) %>
+
+<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+  <h1 class="text-2xl font-bold">Orders</h1>
+  <form method="GET" action="/admin/orders" class="flex gap-2">
+    <input class="input !w-56" name="q" value="<%= q %>" placeholder="Search id, link, user...">
+    <select name="status" class="input !w-40" onchange="this.form.submit()">
+      <option value="">All statuses</option>
+      <% ['pending','processing','inprogress','completed','partial','canceled'].forEach(function(s){ %>
+        <option value="<%= s %>" <%= statusFilter === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+    <button class="btn btn-slate" type="submit">Search</button>
+  </form>
+</div>
+
+<div class="card overflow-hidden">
+  <% if (!orders.length) { %>
+    <p class="p-5 text-sm text-slate-500">No orders found.</p>
+  <% } else { %>
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">User</th><th class="th">Service</th><th class="th">Qty</th><th class="th">Charge</th><th class="th">Provider</th><th class="th">Status</th><th class="th">Actions</th></tr></thead>
+    <tbody>
+      <% orders.forEach(function(o){ %>
+      <tr>
+        <td class="td font-mono">#<%= o.id %></td>
+        <td class="td"><%= o.username %></td>
+        <td class="td max-w-[220px] truncate" title="<%= o.service_name %>"><%= o.service_name %><div class="text-xs text-slate-400 truncate max-w-[220px]"><a class="hover:underline" href="<%= o.link %>" target="_blank" rel="noopener"><%= o.link %></a></div></td>
+        <td class="td"><%= Number(o.quantity).toLocaleString() %></td>
+        <td class="td"><%= money(o.charge) %></td>
+        <td class="td text-xs"><%= o.provider_order_id ? '<span class="font-mono">' + o.provider_order_id + '</span>' : '<span class="text-slate-400">—</span>' %><% if (o.provider_name) { %><div class="text-slate-400"><%= o.provider_name %></div><% } %></td>
+        <td class="td"><%- statusBadge(o.status) %></td>
+        <td class="td whitespace-nowrap">
+          <form class="inline" method="POST" action="/admin/orders/<%= o.id %>/status">
+            <select name="status" class="input !w-32 !py-1 !text-xs" onchange="this.form.submit()">
+              <% ['pending','processing','inprogress','completed','partial','canceled'].forEach(function(s){ %>
+                <option value="<%= s %>" <%= o.status === s ? 'selected' : '' %>><%= s %></option>
+              <% }) %>
+            </select>
+          </form>
+          <% if (o.provider_order_id) { %>
+            <form class="inline" method="POST" action="/admin/orders/<%= o.id %>/refresh"><button class="btn btn-sm btn-slate" type="submit" title="Refresh status from provider">↻</button></form>
+          <% } else { %>
+            <form class="inline" method="POST" action="/admin/orders/<%= o.id %>/push" onsubmit="return confirm('Push order #<%= o.id %> to provider?')"><button class="btn btn-sm btn-primary" type="submit" title="Push to provider">Push</button></form>
+          <% } %>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/pagination', { page, pages, total, qs }) %>
+
+<%- include('../partials/shell_end') %>

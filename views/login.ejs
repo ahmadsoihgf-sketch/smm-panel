@@ -1,0 +1,29 @@
+<%- include('partials/head', { title: 'Log in' }) %>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <a href="/" class="inline-flex items-center gap-2">
+        <span class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl">B</span>
+        <span class="font-bold text-white text-2xl tracking-tight"><%= settings.site_name %></span>
+      </a>
+    </div>
+    <div class="card p-8">
+      <h1 class="text-2xl font-bold mb-1">Welcome back</h1>
+      <p class="text-sm text-slate-500 mb-6">Log in to your panel account.</p>
+      <%- include('partials/flash') %>
+      <form method="POST" action="/login" class="space-y-4">
+        <div>
+          <label class="text-sm font-semibold">Username or email</label>
+          <input class="input mt-1" name="username" required autocomplete="username">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Password</label>
+          <input class="input mt-1" type="password" name="password" required autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary w-full py-3" type="submit">Log in</button>
+      </form>
+      <p class="text-sm text-slate-500 mt-6 text-center">No account? <a href="/register" class="text-indigo-600 font-semibold">Create one free</a></p>
+    </div>
+  </div>
+</body>
+</html>

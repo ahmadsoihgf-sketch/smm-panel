@@ -1,0 +1,42 @@
+<%- include('../partials/head', { title: 'Support tickets' }) %>
+<%- include('../partials/shell_start', { panel: 'user', active: 'tickets' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Support tickets</h1>
+
+<div class="grid lg:grid-cols-2 gap-6">
+  <div class="card overflow-hidden self-start">
+    <div class="px-5 py-4 border-b border-slate-100"><h2 class="font-bold">Your tickets</h2></div>
+    <% if (!tickets.length) { %>
+      <p class="p-5 text-sm text-slate-500">No tickets yet.</p>
+    <% } else { %>
+      <div class="divide-y divide-slate-100">
+      <% tickets.forEach(function(t){ %>
+        <a href="/tickets/<%= t.id %>" class="block px-5 py-4 hover:bg-slate-50">
+          <div class="flex items-center justify-between gap-3">
+            <div class="font-semibold text-sm truncate">#<%= t.id %> · <%= t.subject %></div>
+            <%- statusBadge(t.status) %>
+          </div>
+          <div class="text-xs text-slate-500 mt-1"><%= t.msg_count %> message(s) · <%= dt(t.created_at) %></div>
+        </a>
+      <% }) %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="card p-6 self-start">
+    <h2 class="font-bold mb-4">Open a new ticket</h2>
+    <form method="POST" action="/tickets" class="space-y-4">
+      <div>
+        <label class="text-sm font-semibold">Subject</label>
+        <input class="input mt-1" name="subject" required maxlength="120" placeholder="e.g. Order #123 not started">
+      </div>
+      <div>
+        <label class="text-sm font-semibold">Message</label>
+        <textarea class="input mt-1" name="message" rows="5" required placeholder="Describe your issue in detail..."></textarea>
+      </div>
+      <button class="btn btn-primary w-full" type="submit">Create ticket</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/shell_end') %>

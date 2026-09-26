@@ -1,0 +1,79 @@
+<%- include('../partials/head', { title: 'Services' }) %>
+<%- include('../partials/shell_start', { panel: 'admin', active: 'services' }) %>
+
+<h1 class="text-2xl font-bold mb-6">Services (<%= services.length %>)</h1>
+
+<div class="card p-6 mb-6">
+  <h2 class="font-bold mb-4">Add service</h2>
+  <form method="POST" action="/admin/services" class="grid md:grid-cols-3 gap-4">
+    <div class="md:col-span-2"><label class="text-sm font-semibold">Name</label><input class="input mt-1" name="name" required></div>
+    <div><label class="text-sm font-semibold">Category</label>
+      <select name="category_id" class="input mt-1"><option value="">— None —</option>
+      <% categories.forEach(function(c){ %><option value="<%= c.id %>"><%= c.name %></option><% }) %></select></div>
+    <div><label class="text-sm font-semibold">Type</label><input class="input mt-1" name="type" value="default"></div>
+    <div><label class="text-sm font-semibold">Rate per 1000 (<%= settings.currency %>)</label><input class="input mt-1" type="number" step="0.0001" name="rate_per_1000" required></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="text-sm font-semibold">Min</label><input class="input mt-1" type="number" name="min" value="100"></div>
+      <div><label class="text-sm font-semibold">Max</label><input class="input mt-1" type="number" name="max" value="1000000"></div>
+    </div>
+    <div><label class="text-sm font-semibold">Provider</label>
+      <select name="provider_id" class="input mt-1"><option value="">— None (manual) —</option>
+      <% providers.forEach(function(p){ %><option value="<%= p.id %>"><%= p.name %></option><% }) %></select></div>
+    <div><label class="text-sm font-semibold">Provider service ID</label><input class="input mt-1" name="provider_service_id" placeholder="e.g. 1234"></div>
+    <div><label class="text-sm font-semibold">Position</label><input class="input mt-1" type="number" name="position" value="0"></div>
+    <div><label class="text-sm font-semibold">Status</label>
+      <select name="status" class="input mt-1"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+    <div class="md:col-span-3"><button class="btn btn-primary" type="submit">Add service</button></div>
+  </form>
+</div>
+
+<div class="card overflow-hidden">
+  <div class="overflow-x-auto">
+  <table class="w-full">
+    <thead><tr><th class="th">ID</th><th class="th">Service</th><th class="th">Rate/1k</th><th class="th">Min–Max</th><th class="th">Provider</th><th class="th">Status</th><th class="th">Actions</th></tr></thead>
+    <tbody>
+      <% services.forEach(function(s){ %>
+      <tr>
+        <td class="td font-mono"><%= s.id %></td>
+        <td class="td">
+          <div class="font-semibold max-w-[260px] truncate" title="<%= s.name %>"><%= s.name %></div>
+          <div class="text-xs text-slate-400"><%= s.category_name || 'No category' %> · <%= s.type %></div>
+        </td>
+        <td class="td whitespace-nowrap"><%= money(s.rate_per_1000) %></td>
+        <td class="td whitespace-nowrap text-xs"><%= Number(s.min).toLocaleString() %> – <%= Number(s.max).toLocaleString() %></td>
+        <td class="td text-xs"><%= s.provider_name ? s.provider_name + ' #' + (s.provider_service_id || '?') : '<span class="text-slate-400">Manual</span>' %></td>
+        <td class="td"><%- statusBadge(s.status) %></td>
+        <td class="td whitespace-nowrap">
+          <button class="btn btn-sm btn-slate" onclick="document.getElementById('edit-<%= s.id %>').classList.toggle('hidden')">Edit</button>
+          <form class="inline" method="POST" action="/admin/services/<%= s.id %>/delete" onsubmit="return confirm('Delete/deactivate this service?')"><button class="btn btn-sm btn-red" type="submit">Del</button></form>
+        </td>
+      </tr>
+      <tr id="edit-<%= s.id %>" class="hidden bg-slate-50">
+        <td colspan="7" class="td">
+          <form method="POST" action="/admin/services/<%= s.id %>" class="grid md:grid-cols-4 gap-3">
+            <div class="md:col-span-2"><label class="text-xs font-semibold">Name</label><input class="input mt-1" name="name" value="<%= s.name %>" required></div>
+            <div><label class="text-xs font-semibold">Category</label>
+              <select name="category_id" class="input mt-1"><option value="">— None —</option>
+              <% categories.forEach(function(c){ %><option value="<%= c.id %>" <%= String(c.id) === String(s.category_id) ? 'selected' : '' %>><%= c.name %></option><% }) %></select></div>
+            <div><label class="text-xs font-semibold">Type</label><input class="input mt-1" name="type" value="<%= s.type %>"></div>
+            <div><label class="text-xs font-semibold">Rate/1k</label><input class="input mt-1" type="number" step="0.0001" name="rate_per_1000" value="<%= s.rate_per_1000 %>" required></div>
+            <div><label class="text-xs font-semibold">Min</label><input class="input mt-1" type="number" name="min" value="<%= s.min %>"></div>
+            <div><label class="text-xs font-semibold">Max</label><input class="input mt-1" type="number" name="max" value="<%= s.max %>"></div>
+            <div><label class="text-xs font-semibold">Position</label><input class="input mt-1" type="number" name="position" value="<%= s.position %>"></div>
+            <div><label class="text-xs font-semibold">Provider</label>
+              <select name="provider_id" class="input mt-1"><option value="">— None —</option>
+              <% providers.forEach(function(p){ %><option value="<%= p.id %>" <%= String(p.id) === String(s.provider_id) ? 'selected' : '' %>><%= p.name %></option><% }) %></select></div>
+            <div><label class="text-xs font-semibold">Provider service ID</label><input class="input mt-1" name="provider_service_id" value="<%= s.provider_service_id || '' %>"></div>
+            <div><label class="text-xs font-semibold">Status</label>
+              <select name="status" class="input mt-1"><option value="active" <%= s.status === 'active' ? 'selected' : '' %>>Active</option><option value="inactive" <%= s.status === 'inactive' ? 'selected' : '' %>>Inactive</option></select></div>
+            <div class="md:col-span-4"><button class="btn btn-primary btn-sm" type="submit">Save changes</button></div>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<%- include('../partials/shell_end') %>

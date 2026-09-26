@@ -1,0 +1,18 @@
+<% /* params: page, pages, total, qs */ %>
+<% if (pages > 1) { %>
+<div class="flex items-center justify-center gap-2 mt-6 flex-wrap">
+  <% const qstr = qs ? qs + '&' : ''; %>
+  <% if (page > 1) { %>
+    <a href="?<%= qstr %>page=<%= page - 1 %>" class="btn btn-sm btn-slate">← Prev</a>
+  <% } %>
+  <% for (let p = 1; p <= pages; p++) {
+       if (p === 1 || p === pages || Math.abs(p - page) <= 2) { %>
+    <a href="?<%= qstr %>page=<%= p %>" class="btn btn-sm <%= p === page ? 'btn-primary' : 'btn-slate' %>"><%= p %></a>
+  <%   } else if (Math.abs(p - page) === 3) { %><span class="text-slate-400 px-1">…</span><% }
+     } %>
+  <% if (page < pages) { %>
+    <a href="?<%= qstr %>page=<%= page + 1 %>" class="btn btn-sm btn-slate">Next →</a>
+  <% } %>
+  <span class="text-xs text-slate-500 ml-2">Page <%= page %> of <%= pages %> · <%= Number(total).toLocaleString() %> total</span>
+</div>
+<% } %>

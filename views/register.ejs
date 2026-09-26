@@ -1,0 +1,45 @@
+<%- include('partials/head', { title: 'Create account' }) %>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <a href="/" class="inline-flex items-center gap-2">
+        <span class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl">B</span>
+        <span class="font-bold text-white text-2xl tracking-tight"><%= settings.site_name %></span>
+      </a>
+    </div>
+    <div class="card p-8">
+      <h1 class="text-2xl font-bold mb-1">Create your account</h1>
+      <p class="text-sm text-slate-500 mb-6">Free forever. No credit card required.</p>
+      <%- include('partials/flash') %>
+      <% if (referrer) { %>
+      <div class="mb-4 px-4 py-3 rounded-lg bg-green-50 border border-green-200 text-sm text-green-700">
+        🎉 You were invited by <strong><%= referrer.username %></strong>!
+      </div>
+      <% } %>
+      <form method="POST" action="/register" class="space-y-4">
+        <input type="hidden" name="ref" value="<%= refCode %>">
+        <div>
+          <label class="text-sm font-semibold">Username</label>
+          <input class="input mt-1" name="username" required minlength="3" maxlength="30" autocomplete="username">
+        </div>
+        <div>
+          <label class="text-sm font-semibold">Email</label>
+          <input class="input mt-1" type="email" name="email" required autocomplete="email">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm font-semibold">Password</label>
+            <input class="input mt-1" type="password" name="password" required minlength="6" autocomplete="new-password">
+          </div>
+          <div>
+            <label class="text-sm font-semibold">Confirm</label>
+            <input class="input mt-1" type="password" name="password2" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+        <button class="btn btn-primary w-full py-3" type="submit">Create account</button>
+      </form>
+      <p class="text-sm text-slate-500 mt-6 text-center">Already have an account? <a href="/login" class="text-indigo-600 font-semibold">Log in</a></p>
+    </div>
+  </div>
+</body>
+</html>
